@@ -2,20 +2,29 @@ from datetime import datetime, timedelta
 import picamera
 import sched, time
 import dropbox
+import configparser
+import urllib.request
+import json
 
 s = sched.scheduler(time.time, time.sleep)
-
+config = configparser.ConfigParser()
 camera = picamera.PiCamera()
 
+config.read('../config/config.txt')
 #Setup the dropbox credentials
-f = open('../Taxes/2015_Tax_Return.txt', 'r')
-accesstoken = f.readline()
-accesstoken = accesstoken.strip()
+accesstoken = config['dropbox']['accesstoken']
 dbx = dropbox.Dropbox(accesstoken)
 
 
 
 def camera_start():
+	#Determine sunrise sunset times
+	lat = config['location']['lat']
+	lon = config['location']['long']
+	request_string = "http://api.sunrise-sunset.org/json?lat=" + lat + "&lng=" + lon + "&formatted=0"
+	with urllib.request.urlopen(request_string) as f:
+		data = json.loads(f.read().decode('utf-8'))
+	print(data['results']['sunrise'])
 	#calculate when to schedule the first image capture
 	t = datetime.utcnow()
 	t += timedelta(minutes = 1, seconds = -t.second, microseconds = -t.microsecond)
