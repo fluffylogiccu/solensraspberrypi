@@ -1,10 +1,18 @@
 from datetime import datetime, timedelta
 import picamera
 import sched, time
+import dropbox
 
 s = sched.scheduler(time.time, time.sleep)
 
 camera = picamera.PiCamera()
+
+#Setup the dropbox credentials
+f = open('../Taxes/2015_Tax_Return.txt', 'r')
+accesstoken = f.readline()
+accesstoken = accesstoken.strip()
+dbx = dropbox.Dropbox(accesstoken)
+
 
 
 def camera_start():
@@ -12,23 +20,29 @@ def camera_start():
 	t = datetime.utcnow()
 	t += timedelta(minutes = 1, seconds = -t.second, microseconds = -t.microsecond)
 	print("First image will be captured at ", t)
-	s.enterabs(time.mktime(t.timetuple()), 1, capture_image)
+	s.enterabs(time.mktime(t.timetuple()), 1, capture_image, argument = (t,))
 	#Start the scheduler
 	s.run()
 
 
 
-def capture_image():
+def capture_image(t):
 	#take a picture
-	camera.capture('/home/pi/FluffyLogic/Pictures/testimg1.jpg')
+	imgname = t.isoformat() + ".jpg"
+	camera.capture(imgname)
+	#upload to dropbox
+	with open(imgname,'rb') as f:
+		data = f.read()
+	imgname = '/' + imgname
+	dbx.files_upload(data,imgname)
+
 	#schedule the next image capture
-	t = datetime.utcnow()
 	if t.second == 30:
 		t += timedelta(minutes = 1, seconds = -t.second, microseconds = -t.microsecond)
 	else:
 		t += timedelta(seconds = -t.second + 30, microseconds = -t.microsecond)
 	print(t)
-	s.enterabs(time.mktime(t.timetuple()), 1, capture_image)
+	s.enterabs(time.mktime(t.timetuple()), 1, capture_image, argument = (t,))
 	
 if __name__ == "__main__":
 	camera_start()
