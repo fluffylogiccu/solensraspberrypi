@@ -7,6 +7,7 @@ import dropbox
 import configparser
 import urllib.request
 import json
+import os
 
 class SolensImageCapture:
 	def __init__(self):
@@ -69,6 +70,8 @@ class SolensImageCapture:
 				data = f.read()
 			imgname = '/' + imgname
 			self.dbx.files_upload(data,imgname)
+			#delete the image to save space
+			os.remove(imgname[1:])
 
 			#check for night time
 			t = self.get_rounded_next_time()
