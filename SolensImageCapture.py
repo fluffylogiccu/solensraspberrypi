@@ -103,6 +103,8 @@ class SolensImageCapture:
 
 
 if __name__ == "__main__":
+	#delay thirty seconds so when cron starts the script, the wifi has time to connect before uploading
+	time.sleep(30)
 	solens = SolensImageCapture()
 	#check to see if the sun is up
 	now_time = datetime.utcnow()
