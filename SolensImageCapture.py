@@ -68,7 +68,7 @@ class SolensImageCapture:
 		
 	def day_time_loop(self, t):
 			#take a picture
-			imgname = t.isoformat() + ".jpg"
+			imgname = t.isoformat() + "_" + self.lat + "_" + self.lon + ".jpg"
 			self.camera.capture(imgname)
 			#upload to dropbox
 			with open(imgname,'rb') as f:

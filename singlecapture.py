@@ -4,19 +4,19 @@ import urllib.request
 
 camera = picamera.PiCamera()
 
-f = open('../Taxes/2015_Tax_Return.txt', 'r')
+f = open('../config/config.txt', 'r')
 
 accesstoken = f.readline()
 accesstoken = accesstoken.strip()
 
-dbx = dropbox.Dropbox(accesstoken)
+#dbx = dropbox.Dropbox(accesstoken)
 
 camera.capture('testimg.jpg')
 
 with open('testimg.jpg','rb') as f:
 	data = f.read()
 
-dbx.files_upload(data,'/testimg.jpg')
+#dbx.files_upload(data,'/testimg.jpg')
 
 
 #accesskey = f.readline()
