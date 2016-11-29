@@ -1,6 +1,7 @@
 import picamera
 import dropbox
 import urllib.request
+import time
 
 camera = picamera.PiCamera()
 
@@ -10,8 +11,10 @@ accesstoken = f.readline()
 accesstoken = accesstoken.strip()
 
 #dbx = dropbox.Dropbox(accesstoken)
-
+camera.start_preview()
+time.sleep(10)
 camera.capture('testimg.jpg')
+camera.stop_preview()
 
 with open('testimg.jpg','rb') as f:
 	data = f.read()
