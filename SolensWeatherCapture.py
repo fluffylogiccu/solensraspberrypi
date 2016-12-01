@@ -6,9 +6,9 @@ import Adafruit_DHT
 import sched, time
 import logging
 from datetime import datetime, timedelta
-from phant import Phant
 import configparser
-
+import urllib.request
+import json
 
 class SolensWeatherCapture:
 	def __init__(self):
@@ -25,21 +25,28 @@ class SolensWeatherCapture:
 		self.publickey = self.config["sparkfun"]["publickey"]
 		self.privatekey = self.config["sparkfun"]["privatekey"]
 		
-		self.p = Phant(public_key=self.publickey, fields=['temp','humid','lat','long'],private_key=self.privatekey)
-		
 		logging.debug("LAT: " + self.lat)
 		logging.debug("LONG: " + self.lon)
 		
 		
 	def loop(self):
 		humidity, temp = self.get_temp_and_humidity()
-		lat = self.lat
-		lon = self.lon
-		self.p.log(humidity, lat, lon, temp)
-		
+		lat = str(self.lat)
+		lat = lat.replace('-','%2D')
+		lon = str(self.lon)
+		lon = lon.replace('-','%2D')
+
+		request_string = "http://data.sparkfun.com/input/"+self.publickey+"?private_key="+self.privatekey
+		request_string = request_string + "&humidity="+str(humidity)+"&temp="+str(temp)
+		request_string = request_string + "&lat="+lat+"&long="+lon
+		print(request_string)
+		with urllib.request.urlopen(request_string) as f:
+			#data = json.loads(f.read().decode('utf-8'))
+			data = f.read().decode('utf-8')		
+		print(data)	
 		t = self.get_rounded_next_time()
 		
-		self.scheduler.enterabs(time.mktime(t.timetuple()),1,self.loop)
+		#self.scheduler.enterabs(time.mktime(t.timetuple()),1,self.loop)
 		
 	def get_temp_and_humidity(self):
 		RHW, TW = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, self.DHTpin)
