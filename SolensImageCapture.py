@@ -25,13 +25,14 @@ class SolensImageCapture:
 		self.lat = self.config['location']['lat']
 		self.lon = self.config['location']['long']
 		self.timezone = self.config['location']['timezone']
+		self.sensor_number = self.config['location']['sensornumber']
 		logging.debug("LAT: " + self.lat)
 		logging.debug("LONG: " + self.lon)
 		logging.debug("TIMEZONE: " + self.timezone)
 		self.sunrise = self.get_sunrise()
 		self.sunset = self.get_sunset()
 		self.s = sched.scheduler(time.time, time.sleep)
-		
+		self.today = datetime.now(timezone(self.timezone))		
 		
 		
 	def get_sunrise(self,tomorrow=False):
@@ -73,10 +74,10 @@ class SolensImageCapture:
 			#upload to dropbox
 			with open(imgname,'rb') as f:
 				data = f.read()
-			imgname = '/' + imgname
-			self.dbx.files_upload(data,imgname)
+			self.dbx.files_upload(data,"/"+self.today.strftime("%d-%m-%y")+"/"+str(self.sensor_number)+"/"+imgname)
+
 			#delete the image to save space
-			os.remove(imgname[1:])
+			os.remove(imgname)
 
 			#check for night time
 			t = self.get_rounded_next_time()
@@ -97,6 +98,7 @@ class SolensImageCapture:
 		
 	def wake_up(self):
 		logging.debug("Initialize image capture sequence...")
+		self.today = datetime.now(timezone(self.timezone))
 		t = self.get_rounded_next_time()
 		logging.debug("Scheduling first image at " + t.isoformat())
 		self.s.enterabs(time.mktime(t.timetuple()),1,self.day_time_loop, argument = (t,))
