@@ -3,42 +3,29 @@ import RPi.GPIO as GPIO
 import os
 from time import sleep
 import Adafruit_DHT
-from phant import Phant
 import configparser
+import urllib.request
 
 config = configparser.ConfigParser()
 		
 config.read('../config/config.txt')
 lat = config['location']['lat']
 lon = config['location']['long']
-
+sensor_number = config['location']['sensornumber']
 publickey = config["sparkfun"]["publickey"]
 privatekey = config["sparkfun"]["privatekey"]
-
-p = Phant(public_key=publickey, fields=['humidity','lat','long','temp'],private_key=privatekey)
-
 
 
 DHTpin = 23
 
 
-RHW, TW = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, DHTpin)
+humidity, temp = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, DHTpin)
 
-print(RHW)
-print(TW)
+request_string = "http://data.sparkfun.com/input/"+publickey+"?private_key="+privatekey
+request_string = request_string + "&humidity="+str(humidity)+"&temp="+str(temp)
+request_string = request_string + "&lat="+lat+"&long="+lon+"&sensornumber="+str(sensor_number)
 
-p.log(2,2,2,2)
-print(p.remaining_bytes, p.cap)
-print("Test")
-
-p.log(str(RHW),str(lat),str(lon),str(TW))
-print(p.remaining_bytes, p.cap)
-
-data = p.get()
-print(data['temp'])
-
-TWF = 9/5*TW+32
-
-print(RHW)
-
-print(TWF)
+print(request_string)
+with urllib.request.urlopen(request_string) as f:
+	data = f.read().decode('utf-8')	
+print(data)

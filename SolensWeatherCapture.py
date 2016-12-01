@@ -21,6 +21,7 @@ class SolensWeatherCapture:
 		#Load location configuration
 		self.lat = self.config['location']['lat']
 		self.lon = self.config['location']['long']
+		self.sensor_number = self.config['location']['sensornumber']
 		
 		self.publickey = self.config["sparkfun"]["publickey"]
 		self.privatekey = self.config["sparkfun"]["privatekey"]
@@ -38,7 +39,7 @@ class SolensWeatherCapture:
 
 		request_string = "http://data.sparkfun.com/input/"+self.publickey+"?private_key="+self.privatekey
 		request_string = request_string + "&humidity="+str(humidity)+"&temp="+str(temp)
-		request_string = request_string + "&lat="+lat+"&long="+lon
+		request_string = request_string + "&lat="+lat+"&long="+lon+"&sensornumber="+str(self.sensor_number)
 		try:
 			with urllib.request.urlopen(request_string) as f:
 				data = f.read().decode('utf-8')	
