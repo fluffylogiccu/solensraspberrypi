@@ -12,7 +12,7 @@ import json
 
 class SolensWeatherCapture:
 	def __init__(self):
-		logging.basicConfig(filename="SolensWeatherCapture.log",level=logging.DEBUG)
+		logging.basicConfig(filename="SolensWeatherCapture.log",level=logging.INFO)
 		self.scheduler = sched.scheduler(time.time, time.sleep)
 		self.config = configparser.ConfigParser()
 		
@@ -39,14 +39,18 @@ class SolensWeatherCapture:
 		request_string = "http://data.sparkfun.com/input/"+self.publickey+"?private_key="+self.privatekey
 		request_string = request_string + "&humidity="+str(humidity)+"&temp="+str(temp)
 		request_string = request_string + "&lat="+lat+"&long="+lon
-		print(request_string)
-		with urllib.request.urlopen(request_string) as f:
-			#data = json.loads(f.read().decode('utf-8'))
-			data = f.read().decode('utf-8')		
-		print(data)	
+		try:
+			with urllib.request.urlopen(request_string) as f:
+				data = f.read().decode('utf-8')	
+			logging.info(data)	
+		except Exception as inst:
+			logging.warning("Error posting to Sparkfun Servers\n")
+			logging.warning(type(inst))
+			logging.warning(inst.args)
+			logging.warning(inst)	
 		t = self.get_rounded_next_time()
 		
-		#self.scheduler.enterabs(time.mktime(t.timetuple()),1,self.loop)
+		self.scheduler.enterabs(time.mktime(t.timetuple()),1,self.loop)
 		
 	def get_temp_and_humidity(self):
 		RHW, TW = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, self.DHTpin)
@@ -56,8 +60,8 @@ class SolensWeatherCapture:
 	def get_rounded_next_time(self):
 		t = datetime.utcnow()
 		
-		#t += timedelta(minutes = -(t.minute%5) + 5, seconds = -t.second, microseconds = -t.microsecond)
-		t += timedelta(seconds = -t.second + 5, microseconds = -t.microsecond)
+		t += timedelta(minutes = -(t.minute%5) + 5, seconds = -t.second, microseconds = -t.microsecond)
+		#t += timedelta(seconds = -t.second + 5, microseconds = -t.microsecond)
 		
 	
 

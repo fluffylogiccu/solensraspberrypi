@@ -12,7 +12,7 @@ import logging
 
 class SolensImageCapture:
 	def __init__(self):
-		logging.basicConfig(filename="SolensImageCapture.log",level=logging.DEBUG)
+		logging.basicConfig(filename="SolensImageCapture.log",level=logging.INFO)
 		self.scheduler = sched.scheduler(time.time, time.sleep)
 		self.config = configparser.ConfigParser()
 		self.camera = picamera.PiCamera()
