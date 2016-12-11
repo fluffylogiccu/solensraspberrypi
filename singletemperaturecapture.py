@@ -21,6 +21,14 @@ DHTpin = 23
 
 humidity, temp = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, DHTpin)
 
+lat = str(lat)
+lat = lat.replace('-','%2D')
+lon = str(lon)
+lon = lon.replace('-','%2D')
+temp = str(temp)
+temp = temp.replace('-','%2D')
+
+
 request_string = "http://data.sparkfun.com/input/"+publickey+"?private_key="+privatekey
 request_string = request_string + "&humidity="+str(humidity)+"&temp="+str(temp)
 request_string = request_string + "&lat="+lat+"&long="+lon+"&sensornumber="+str(sensor_number)

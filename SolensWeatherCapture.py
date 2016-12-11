@@ -36,9 +36,11 @@ class SolensWeatherCapture:
 		lat = lat.replace('-','%2D')
 		lon = str(self.lon)
 		lon = lon.replace('-','%2D')
+		temp = str(temp)
+		temp = temp.replace('-','%2D')
 
 		request_string = "http://data.sparkfun.com/input/"+self.publickey+"?private_key="+self.privatekey
-		request_string = request_string + "&humidity="+str(humidity)+"&temp="+str(temp)
+		request_string = request_string + "&humidity="+str(humidity)+"&temp="+temp
 		request_string = request_string + "&lat="+lat+"&long="+lon+"&sensornumber="+str(self.sensor_number)
 		try:
 			with urllib.request.urlopen(request_string) as f:
