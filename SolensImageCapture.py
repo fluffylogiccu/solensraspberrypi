@@ -72,10 +72,12 @@ class SolensImageCapture:
 			imgname = t.isoformat() + "_" + self.lat + "_" + self.lon + ".jpg"
 			self.camera.capture(imgname)
 			#upload to dropbox
-			with open(imgname,'rb') as f:
-				data = f.read()
-			self.dbx.files_upload(data,"/"+self.today.strftime("%d-%m-%y")+"/"+str(self.sensor_number)+"/"+imgname)
-
+			try:
+				with open(imgname,'rb') as f:
+					data = f.read()
+				self.dbx.files_upload(data,"/"+self.today.strftime("%d-%m-%y")+"/"+str(self.sensor_number)+"/"+imgname)
+			except Exception as e:
+				logging.error(str(e))
 			#delete the image to save space
 			os.remove(imgname)
 
